@@ -99,8 +99,7 @@ public class PlaceOrderController extends BaseController{
     }
     
     public boolean validateAddress(String address) {
-    	// TODO: your work
-    	return false;
+    	return address.matches("\\d+\\s+[a-zA-Z]+");
     }
     
 
