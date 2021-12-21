@@ -4,6 +4,7 @@ import common.exception.ProcessInvoiceException;
 import controller.PaymentController;
 import entity.invoice.Invoice;
 import entity.order.OrderMedia;
+import entity.order.RushOrder;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -11,6 +12,8 @@ import java.util.logging.Logger;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import utils.Configs;
@@ -74,7 +77,7 @@ public class InvoiceScreenHandler extends BaseScreenHandler {
   }
 
   @SuppressWarnings("unchecked")
-  private void setInvoiceInfo() {
+  private void setInvoiceInfo() throws IOException {
     HashMap<String, String> deliveryInfo = invoice.getOrder().getDeliveryInfo();
     name.setText(deliveryInfo.get("name"));
     province.setText(deliveryInfo.get("province"));
@@ -85,18 +88,62 @@ public class InvoiceScreenHandler extends BaseScreenHandler {
     int amount = invoice.getOrder().getAmount() + invoice.getOrder().getShippingFees();
     total.setText(Utils.getCurrencyFormat(amount));
     invoice.setAmount(amount);
-    invoice.getOrder().getlstOrderMedia().forEach(orderMedia -> {
+    if (invoice.getOrder() instanceof RushOrder) {
       try {
-        MediaInvoiceScreenHandler mis = new MediaInvoiceScreenHandler(
-            Configs.INVOICE_MEDIA_SCREEN_PATH);
-        mis.setOrderMedia((OrderMedia) orderMedia);
-        vboxItems.getChildren().add(mis.getContent());
-      } catch (IOException | SQLException e) {
+        RushOrder order = new RushOrder(invoice.getOrder().getlstOrderMedia());
+        
+        AnchorPane pane = new AnchorPane();
+        HBox hbox = new HBox();
+        Label label = new Label("Media shipped as usual");
+        hbox.getChildren().add(label);
+        pane.getChildren().add(hbox);
+        
+        
+        order.getListMediaNotSupportRushOrder().forEach(orderMedia -> {
+          try {
+            MediaInvoiceScreenHandler mis = new MediaInvoiceScreenHandler(
+                Configs.INVOICE_MEDIA_SCREEN_PATH);
+            mis.setOrderMedia((OrderMedia) orderMedia);
+            vboxItems.getChildren().add(mis.getContent());
+          } catch (IOException | SQLException e) {
+            System.err.println("errors: " + e.getMessage());
+            throw new ProcessInvoiceException(e.getMessage());
+          } 
+        });
+        
+        order.getListMediaSupportRushOrder().forEach(orderMedia -> {
+          try {
+            MediaInvoiceScreenHandler mis = new MediaInvoiceScreenHandler(
+                Configs.INVOICE_MEDIA_SCREEN_PATH);
+            mis.setOrderMedia((OrderMedia) orderMedia);
+            vboxItems.getChildren().add(mis.getContent());
+          } catch (IOException | SQLException e) {
+            System.err.println("errors: " + e.getMessage());
+            throw new ProcessInvoiceException(e.getMessage());
+          } 
+        });
+        
+      } catch (Exception e) {
         System.err.println("errors: " + e.getMessage());
         throw new ProcessInvoiceException(e.getMessage());
       }
+      
+    } else {
+        
+      invoice.getOrder().getlstOrderMedia().forEach(orderMedia -> {
+        try {
+          MediaInvoiceScreenHandler mis = new MediaInvoiceScreenHandler(
+              Configs.INVOICE_MEDIA_SCREEN_PATH);
+          mis.setOrderMedia((OrderMedia) orderMedia);
+          vboxItems.getChildren().add(mis.getContent());
+        } catch (IOException | SQLException e) {
+          System.err.println("errors: " + e.getMessage());
+          throw new ProcessInvoiceException(e.getMessage());
+        }
 
-    });
+      });
+      
+    }
 
   }
 

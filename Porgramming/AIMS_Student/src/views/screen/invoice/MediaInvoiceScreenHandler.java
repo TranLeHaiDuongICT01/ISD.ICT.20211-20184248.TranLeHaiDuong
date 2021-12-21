@@ -58,7 +58,13 @@ public class MediaInvoiceScreenHandler extends FxmlScreenHandler {
    * <br>@throws SQLException
    */
   public void setMediaInfo() throws SQLException {
-    title.setText(orderMedia.getMedia().getTitle());
+    String typeName = "";
+    if (!orderMedia.getMedia().isIfSupportRushOrder()) {
+      typeName = "(usual ship)";
+    } else {
+      typeName = "(rush ship)";
+    }
+    title.setText(orderMedia.getMedia().getTitle() + typeName);
     price.setText(Utils.getCurrencyFormat(orderMedia.getPrice()));
     numOfProd.setText(String.valueOf(orderMedia.getQuantity()));
     setImage(image, orderMedia.getMedia().getImageUrl());

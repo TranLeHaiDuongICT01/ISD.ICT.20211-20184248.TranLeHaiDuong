@@ -1,14 +1,16 @@
 package controller;
 
+import common.exception.PlaceOrderException;
 import entity.cart.Cart;
 import entity.cart.CartMedia;
 import entity.order.Order;
 import entity.order.OrderMedia;
 import entity.order.RushOrder;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Random;
 import java.util.logging.Logger;
-
+import views.screen.popup.PopupScreen;
 
 /**
  * This is the class controlling rush order use case.
@@ -33,6 +35,27 @@ public class PlaceRushOrderController extends PlaceOrderController {
       order.getlstOrderMedia().add(orderMedia);
     }
     return new RushOrder(order.getlstOrderMedia());
+
+  }
+  
+  
+  @Override
+  public int calculateShippingFee(Order order) {
+    Random rand = new Random();
+    RushOrder rushOrder = new RushOrder(order.getlstOrderMedia());
+    if (!checkSupportedMedia(rushOrder)) {
+      try {
+        PopupScreen.error("No media chosen support rush order");
+        System.out.println("No");
+        throw new PlaceOrderException("No media chosen support rush order");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    int fees = (int) (((rand.nextFloat() * 10) / 100) * order.getAmount());
+    fees += 100 * rushOrder.getListMediaSupportRushOrder().size();
+    LOGGER.info("Order Amount: " + order.getAmount() + " -- Shipping Fees: " + fees);
+    return fees;
   }
   
   /**
@@ -47,14 +70,16 @@ public class PlaceRushOrderController extends PlaceOrderController {
     return true;
   }
   
-  @Override
-  public int calculateShippingFee(Order order) {
-    Random rand = new Random();
-    RushOrder rushOrder = new RushOrder();
-    rushOrder = (RushOrder) order;
-    int fees = (int) (((rand.nextFloat() * 10) / 100) * order.getAmount());
-    fees += 100 * rushOrder.getListMediaSupportRushOrder().size();
-    LOGGER.info("Order Amount: " + order.getAmount() + " -- Shipping Fees: " + fees);
-    return fees;
+  /**
+   * This method checks if there is any media that support rush order.
+   * <br>@param days  the number of days
+   * <br>@return boolean
+   */
+  public boolean checkSupportedMedia(Order order) {
+    RushOrder rushOrder = new RushOrder(order.getlstOrderMedia());
+    if (rushOrder.getListMediaSupportRushOrder().size() == 0) {
+      return false;
+    }
+    return true;
   }
 }

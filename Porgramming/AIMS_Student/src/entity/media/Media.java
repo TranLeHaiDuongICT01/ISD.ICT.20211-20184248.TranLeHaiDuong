@@ -59,7 +59,11 @@ public class Media {
     this.quantity = quantity;
     this.type = type;
     // Initialize example
-    ifSupportRushOrder = true;
+    if (this.price > 60) {
+      ifSupportRushOrder = true;
+    } else {
+      ifSupportRushOrder = false;
+    }
     // stm = AimsDb.getConnection().createStatement();
   }
 
@@ -89,7 +93,8 @@ public class Media {
       return new Media().setId(res.getInt("id")).setTitle(res.getString("title"))
           .setQuantity(res.getInt("quantity")).setCategory(res.getString("category"))
           .setMediaUrl(res.getString("imageUrl")).setPrice(res.getInt("price"))
-          .setType(res.getString("type"));
+          .setType(res.getString("type"))
+          .setIfSupportRushOrder(res.getInt("price") > 60);
     }
     return null;
   }
@@ -108,7 +113,8 @@ public class Media {
       Media media = new Media().setId(res.getInt("id")).setTitle(res.getString("title"))
           .setQuantity(res.getInt("quantity")).setCategory(res.getString("category"))
           .setMediaUrl(res.getString("imageUrl")).setPrice(res.getInt("price"))
-          .setType(res.getString("type"));
+          .setType(res.getString("type"))
+          .setIfSupportRushOrder(res.getInt("price") > 60);
       medium.add(media);
     }
     return medium;
@@ -196,8 +202,9 @@ public class Media {
     return ifSupportRushOrder;
   }
 
-  public void setIfSupportRushOrder(boolean ifSupportRushOrder) {
+  public Media setIfSupportRushOrder(boolean ifSupportRushOrder) {
     this.ifSupportRushOrder = ifSupportRushOrder;
+    return this;
   }
 
   @Override
@@ -205,7 +212,8 @@ public class Media {
     return "{" + " id='" + id + "'" + ", title='" + title + "'" + ", "
         + "category='" + category + "'" + ", price='" + price
         + "'" + ", quantity='" + quantity + "'" + ", type='" 
-        + type + "'" + ", imageURL='" + imageUrl + "'" + "}";
+        + type + "'" + ", imageURL='" + imageUrl + "'" 
+        + ", support rush order=" + "'" + ifSupportRushOrder + "'" + "}";
   }
 
 }

@@ -2,8 +2,10 @@ package views.screen.shipping;
 
 import common.exception.InvalidDeliveryInfoException;
 import controller.PlaceOrderController;
+import controller.PlaceRushOrderController;
 import entity.invoice.Invoice;
 import entity.order.Order;
+import entity.order.RushOrder;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
@@ -15,6 +17,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
@@ -43,6 +46,9 @@ public class ShippingScreenHandler extends BaseScreenHandler implements Initiali
 
   @FXML
   private TextField instructions;
+  
+  @FXML
+  private RadioButton btn;
 
   @FXML
   private ComboBox<String> province;
@@ -78,32 +84,46 @@ public class ShippingScreenHandler extends BaseScreenHandler implements Initiali
     messages.put("address", address.getText());
     messages.put("instructions", instructions.getText());
     messages.put("province", province.getValue());
+    messages.put("rush order", String.valueOf(btn.isSelected()));
+    PlaceOrderController controller;
+    if (btn.isSelected()) {
+      controller = new PlaceRushOrderController();
+      order = new RushOrder(order.getlstOrderMedia());
+    } else {
+      controller = getbController();
+    }
     try {
       // process and validate delivery info
-      getbController().processDeliveryInfo(messages);
+      controller.processDeliveryInfo(messages);
     } catch (InvalidDeliveryInfoException e) {
       throw new InvalidDeliveryInfoException(e.getMessage());
     }
 
     // calculate shipping fees
-    int shippingFees = getbController().calculateShippingFee(order);
+    int shippingFees = controller.calculateShippingFee(order);
     order.setShippingFees(shippingFees);
     order.setDeliveryInfo(messages);
 
     // create invoice screen
-    Invoice invoice = getbController().createInvoice(order);
+    Invoice invoice = controller.createInvoice(order);
+    if (controller instanceof PlaceRushOrderController) {
+      System.out.println("Hello");
+    } else {
+      System.out.println("Bye");
+    }
     BaseScreenHandler invoiceScreenHandler = new InvoiceScreenHandler(
         this.stage, Configs.INVOICE_SCREEN_PATH, invoice);
     invoiceScreenHandler.setPreviousScreen(this);
     invoiceScreenHandler.setHomeScreenHandler(homeScreenHandler);
     invoiceScreenHandler.setScreenTitle("Invoice Screen");
-    invoiceScreenHandler.setbController(getbController());
+    invoiceScreenHandler.setbController(controller);
     invoiceScreenHandler.show();
   }
 
   public PlaceOrderController getbController() {
     return (PlaceOrderController) super.getbController();
   }
+  
 
   public void notifyError() {
     // TODO: implement later on if we need

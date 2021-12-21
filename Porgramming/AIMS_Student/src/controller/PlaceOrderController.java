@@ -1,5 +1,6 @@
 package controller;
 
+import common.exception.PlaceOrderException;
 import entity.cart.Cart;
 import entity.cart.CartMedia;
 import entity.invoice.Invoice;
@@ -8,8 +9,11 @@ import entity.order.OrderMedia;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.logging.Logger;
+import views.screen.popup.PopupScreen;
+
 
 /**
  * This class controls the flow of place order usecase in our AIMS project.
@@ -86,7 +90,40 @@ public class PlaceOrderController extends BaseController {
    */
   public void validateDeliveryInfo(HashMap<String, String> info) 
       throws InterruptedException, IOException {
-
+    for (Entry<String, String> entry : info.entrySet()) {
+      if (entry.getKey().equalsIgnoreCase("name")) {
+        LOGGER.info("Validate " + entry.getKey() 
+            + " in delivery info: \"" + entry.getValue() + "\"");
+        if (!validateName(entry.getValue())) {
+          PopupScreen.error("Invalid " + entry.getKey());
+          throw new PlaceOrderException("Invalid " + entry.getKey());
+        }
+      }
+      
+      if (entry.getKey().equalsIgnoreCase("phone")) {
+        LOGGER.info("Validate " + entry.getKey() 
+            + " in delivery info: \"" + entry.getValue() + "\"");
+        if (!validatePhoneNumber(entry.getValue())) {
+          PopupScreen.error("Invalid " + entry.getKey());
+          throw new PlaceOrderException("Invalid " + entry.getKey());
+        }
+      }
+      
+      if (entry.getKey().equalsIgnoreCase("address")) {
+        LOGGER.info("Validate " + entry.getKey() 
+            + " in delivery info: \"" + entry.getValue() + "\"");
+        if (!validateAddress(entry.getValue())) {
+          PopupScreen.error("Invalid " + entry.getKey());
+          throw new PlaceOrderException("Invalid " + entry.getKey());
+        }
+      }
+      
+      if (entry.getKey().equalsIgnoreCase("province") && entry.getValue().equalsIgnoreCase("")) {
+        PopupScreen.error("Please choose one province");
+        throw new PlaceOrderException("Please choose one province");
+      }
+      
+    }
   }
 
   /**

@@ -9,7 +9,7 @@ import utils.Configs;
  * <br>@author ADMIN
  *
  */
-@SuppressWarnings({"unused", "rawtypes"})
+@SuppressWarnings({"rawtypes"})
 public class RushOrder extends Order {
   
   private List listMediaSupportRushOrder;
@@ -31,6 +31,8 @@ public class RushOrder extends Order {
   @SuppressWarnings("unchecked")
   public RushOrder(List lstOrderMedia) {
     super(lstOrderMedia);
+    listMediaNotSupportRushOrder = new ArrayList();
+    listMediaSupportRushOrder = new ArrayList();
     for (Object object : lstOrderMedia) {
       OrderMedia om = (OrderMedia) object;
       if (om.getMedia().isIfSupportRushOrder()) {
