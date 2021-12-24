@@ -1,6 +1,6 @@
 package controller;
 
-import common.exception.PlaceOrderException;
+import common.exception.PlaceOrderException; 
 import entity.cart.Cart;
 import entity.cart.CartMedia;
 import entity.invoice.Invoice;
@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.logging.Logger;
+import validateinformation.ValidateInfo;
 import views.screen.popup.PopupScreen;
-
 
 /**
  * This class controls the flow of place order usecase in our AIMS project.
@@ -90,11 +90,12 @@ public class PlaceOrderController extends BaseController {
    */
   public void validateDeliveryInfo(HashMap<String, String> info) 
       throws InterruptedException, IOException {
+    ValidateInfo validateInfo = new ValidateInfo();
     for (Entry<String, String> entry : info.entrySet()) {
       if (entry.getKey().equalsIgnoreCase("name")) {
         LOGGER.info("Validate " + entry.getKey() 
             + " in delivery info: \"" + entry.getValue() + "\"");
-        if (!validateName(entry.getValue())) {
+        if (!validateInfo.validateName(entry.getValue())) {
           PopupScreen.error("Invalid " + entry.getKey());
           throw new PlaceOrderException("Invalid " + entry.getKey());
         }
@@ -103,7 +104,7 @@ public class PlaceOrderController extends BaseController {
       if (entry.getKey().equalsIgnoreCase("phone")) {
         LOGGER.info("Validate " + entry.getKey() 
             + " in delivery info: \"" + entry.getValue() + "\"");
-        if (!validatePhoneNumber(entry.getValue())) {
+        if (!validateInfo.validatePhoneNumber(entry.getValue())) {
           PopupScreen.error("Invalid " + entry.getKey());
           throw new PlaceOrderException("Invalid " + entry.getKey());
         }
@@ -112,7 +113,7 @@ public class PlaceOrderController extends BaseController {
       if (entry.getKey().equalsIgnoreCase("address")) {
         LOGGER.info("Validate " + entry.getKey() 
             + " in delivery info: \"" + entry.getValue() + "\"");
-        if (!validateAddress(entry.getValue())) {
+        if (!validateInfo.validateAddress(entry.getValue())) {
           PopupScreen.error("Invalid " + entry.getKey());
           throw new PlaceOrderException("Invalid " + entry.getKey());
         }
@@ -124,45 +125,6 @@ public class PlaceOrderController extends BaseController {
       }
       
     }
-  }
-
-  /**
-   * This is the method to validate phone number.
-   * <br>@param phoneNumber  the string of phone number
-   * <br>@return boolean
-   */
-  public boolean validatePhoneNumber(String phoneNumber) {
-    if (phoneNumber.length() != 10) {
-      return false;
-    }
-    if (!phoneNumber.startsWith("0")) {
-      return false;
-    }
-    try {
-      Integer.parseInt(phoneNumber);
-    } catch (NumberFormatException e) {
-      return false;
-    }
-    return true;
-  }
-
-  /**
-   * This is the method to validate name of user.
-   * <br>@param phoneNumber  the string of user name
-   * <br>@return boolean
-   */
-  public boolean validateName(String name) {
-    // TODO: your work
-    return name.matches("^[\\p{L} .'-]+$");
-  }
-
-  /**
-   * This is the method to validate shipping address.
-   * <br>@param phoneNumber  the string of shipping address
-   * <br>@return boolean
-   */
-  public boolean validateAddress(String address) {
-    return address.matches("\\d+\\s+[a-zA-Z]+");
   }
 
   /**

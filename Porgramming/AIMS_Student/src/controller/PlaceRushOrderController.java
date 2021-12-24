@@ -58,17 +58,6 @@ public class PlaceRushOrderController extends PlaceOrderController {
     return fees;
   }
   
-  /**
-   * This method validates expected time shipping.
-   * <br>@param days  the number of days
-   * <br>@return boolean
-   */
-  public boolean validateExpectedTime(int days) {
-    if (days == 0 || days > 30) {
-      return false;
-    }
-    return true;
-  }
   
   /**
    * This method checks if there is any media that support rush order.
